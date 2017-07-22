@@ -20,15 +20,11 @@ class FloatParserNodeTest extends TestCase
     public function testValidInput()
     {
         $this->assertEquals(1.1, $this->uut->parse(1.1));
+        $this->assertEquals(1e1, $this->uut->parse(1e1));
     }
 
     /**
      * @dataProvider provideDataForWrongInput
-     *
-     * @param mixed $input
-     * @param string $exception
-     *
-     * @throws Exception
      */
     public function testWrongTypeInput($input, $exception)
     {
