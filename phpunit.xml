@@ -2,8 +2,16 @@
 
 <phpunit colors="true">
     <testsuites>
-        <testsuite name="Hello World Test Suite">
-            <directory>./Tests/</directory>
+        <testsuite>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
+    <filter>
+        <whitelist>
+            <directory>./src/</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
 </phpunit>
