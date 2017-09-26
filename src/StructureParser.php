@@ -2,6 +2,7 @@
 namespace AlexKunin\StructureParser;
 
 use AlexKunin\StructureParser\Nodes\FloatParserNode;
+use AlexKunin\StructureParser\Nodes\IntParserNode;
 use AlexKunin\StructureParser\Nodes\MapParserNode;
 use AlexKunin\StructureParser\Nodes\ObjectParserNode;
 use AlexKunin\StructureParser\Nodes\StringParserNode;
