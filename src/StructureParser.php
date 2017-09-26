@@ -33,4 +33,9 @@ class StructureParser
     {
         return new FloatParserNode();
     }
+
+    public function int()
+    {
+        return new IntParserNode();
+    }
 }
