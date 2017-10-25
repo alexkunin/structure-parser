@@ -1,16 +1,16 @@
 <?php
 namespace AlexKunin\StructureParser\Nodes;
 
-use Exception;
+use AlexKunin\StructureParser\ParserNodeUtils;
 use AlexKunin\StructureParser\StructureParserNodeInterface;
+use Exception;
 
 class FloatParserNode implements StructureParserNodeInterface
 {
+    use ParserNodeUtils;
+
     /**
-     * @param mixed $input
-     *
-     * @return mixed
-     * @throws Exception
+     * @inheritdoc
      */
     public function parse($input)
     {
@@ -19,5 +19,13 @@ class FloatParserNode implements StructureParserNodeInterface
         }
 
         return $input;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getReadableDescription()
+    {
+        return '<FLOAT>';
     }
 }

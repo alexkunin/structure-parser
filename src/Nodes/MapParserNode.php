@@ -1,11 +1,14 @@
 <?php
 namespace AlexKunin\StructureParser\Nodes;
 
-use Exception;
+use AlexKunin\StructureParser\ParserNodeUtils;
 use AlexKunin\StructureParser\StructureParserNodeInterface;
+use Exception;
 
 class MapParserNode implements StructureParserNodeInterface
 {
+    use ParserNodeUtils;
+
     /**
      * @var StructureParserNodeInterface
      */
@@ -27,10 +30,7 @@ class MapParserNode implements StructureParserNodeInterface
     }
 
     /**
-     * @param mixed $input
-     *
-     * @return mixed
-     * @throws Exception
+     * @inheritdoc
      */
     public function parse($input)
     {
@@ -43,6 +43,21 @@ class MapParserNode implements StructureParserNodeInterface
         foreach ($input as $key => $value) {
             $result[$this->key->parse($key)] = $this->value->parse($value);
         }
+
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getReadableDescription()
+    {
+        $result = '{' . PHP_EOL;
+
+        $result .= $this->indent($this->key->getReadableDescription() . ': ' . $this->value->getReadableDescription()) . ',' . PHP_EOL;
+        $result .= $this->indent('...') . PHP_EOL;
+
+        $result .= '}';
 
         return $result;
     }
