@@ -5,6 +5,7 @@ use AlexKunin\StructureParser\Nodes\FloatParserNode;
 use AlexKunin\StructureParser\Nodes\IntParserNode;
 use AlexKunin\StructureParser\Nodes\MapParserNode;
 use AlexKunin\StructureParser\Nodes\ObjectParserNode;
+use AlexKunin\StructureParser\Nodes\RawParserNode;
 use AlexKunin\StructureParser\Nodes\StringParserNode;
 use AlexKunin\StructureParser\Nodes\VectorParserNode;
 
@@ -38,5 +39,10 @@ class StructureParser
     public function int()
     {
         return new IntParserNode();
+    }
+
+    public function raw()
+    {
+        return new RawParserNode();
     }
 }

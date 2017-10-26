@@ -11,7 +11,7 @@ trait ParserNodeUtils
     /**
      * @param string $value
      *
-     * @return StructureParserNodeInterface
+     * @return $this
      */
     public function setComment($value)
     {

@@ -3,20 +3,21 @@ namespace AlexKunin\StructureParser\Nodes;
 
 use AlexKunin\StructureParser\ParserNodeUtils;
 use AlexKunin\StructureParser\StructureParserNodeInterface;
+use Exception;
 
 class ObjectParserNode implements StructureParserNodeInterface
 {
     use ParserNodeUtils;
 
     /**
-     * @var string
+     * @var string|callable
      */
     private $class;
 
     /**
-     * @var StructureParserNodeInterface[]
+     * @var array
      */
-    private $properties;
+    private $properties = [];
 
     /**
      * @param string $class
@@ -25,7 +26,17 @@ class ObjectParserNode implements StructureParserNodeInterface
     public function __construct($class, array $properties)
     {
         $this->class = $class;
-        $this->properties = $properties;
+        foreach ($properties as $property => $node) {
+            $this->addProperty($property, $property, $node);
+        }
+    }
+
+    public function addProperty($inputName, $outputName, StructureParserNodeInterface $parserNode)
+    {
+        $this->properties[$inputName] = [
+            'name' => $outputName,
+            'node' => $parserNode,
+        ];
     }
 
     /**
@@ -46,7 +57,31 @@ class ObjectParserNode implements StructureParserNodeInterface
      */
     public function parse($input)
     {
-        return new $this->class($this->properties, $input);
+        $properties = array_combine(
+            array_map(function (array $desc) {
+                return $desc['name'];
+            }, $this->properties),
+            array_map(function (array $desc) {
+                return $desc['node'];
+            }, $this->properties)
+        );
+
+        $input = array_reduce(
+            array_keys($this->properties),
+            function (array $result, string $inputProperty) use ($input) {
+                $result[$this->properties[$inputProperty]['name']] = $input[$inputProperty];
+                return $result;
+            },
+            []
+        );
+
+        if (is_string($this->class)) {
+            return new $this->class($properties, $input);
+        } elseif (is_callable($this->class)) {
+            return call_user_func($this->class, $properties, $input);
+        } else {
+            throw new Exception('Invalid class/factory');
+        }
     }
 
     /**
@@ -64,11 +99,11 @@ class ObjectParserNode implements StructureParserNodeInterface
             foreach (array_keys($this->properties) as $index => $property) {
                 $line = $this->indent(
                     str_pad('"' . $property . '":', $maxPropertyLength + 4)
-                    . $this->properties[$property]->getReadableDescription()
+                    . $this->properties[$property]['node']->getReadableDescription()
                     . ($index === count($this->properties) - 1 ? ' ' : ',')
                 );
 
-                $comment = $this->properties[$property]->formatComment();
+                $comment = $this->properties[$property]['node']->formatComment();
 
                 if ($comment) {
                     $line .= preg_replace('/\n/', "\n" . str_repeat(' ', strlen($line)), $comment);
