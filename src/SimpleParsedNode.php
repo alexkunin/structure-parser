@@ -5,28 +5,25 @@ use Exception;
 trait SimpleParsedNode
 {
     /**
-     * @var StructureParserNodeInterface[]
-     */
-    private $properties;
-
-    /**
      * @var array
      */
     private $cache = [];
 
     /**
-     * @var array
-     */
-    private $input;
-
-    /**
      * @param StructureParserNodeInterface[] $properties
      * @param array                          $input
+     *
+     * @throws Exception
      */
     public function __construct(array $properties, array $input)
     {
-        $this->properties = $properties;
-        $this->input = $input;
+        foreach ($properties as $property => $parser) {
+            if (!array_key_exists($property, $input)) {
+                throw new Exception('Input missing property: ' . var_export($property, true));
+            }
+
+            $this->cache[$property] = $properties[$property]->parse($input[$property]);
+        }
     }
 
     /**
@@ -52,16 +49,8 @@ trait SimpleParsedNode
      */
     public function __get($property)
     {
-        if (!array_key_exists($property, $this->properties)) {
-            throw new Exception('Unknown property: ' . var_export($property, true));
-        }
-
-        if (!array_key_exists($property, $this->input)) {
-            throw new Exception('Input missing property: ' . var_export($property, true));
-        }
-
         if (!array_key_exists($property, $this->cache)) {
-            $this->cache[$property] = $this->properties[$property]->parse($this->input[$property]);
+            throw new Exception('Unknown property: ' . var_export($property, true));
         }
 
         return $this->cache[$property];

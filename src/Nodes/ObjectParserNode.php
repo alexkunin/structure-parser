@@ -4,6 +4,8 @@ namespace AlexKunin\StructureParser\Nodes;
 use AlexKunin\StructureParser\ParserNodeUtils;
 use AlexKunin\StructureParser\StructureParserNodeInterface;
 use Exception;
+use AlexKunin\StructureParser\Nodes\ObjectParserNode\ObjectParserNodeConstructingFactory;
+use AlexKunin\StructureParser\Nodes\ObjectParserNode\ObjectParserNodeFactoryInterface;
 
 class ObjectParserNode implements StructureParserNodeInterface
 {
@@ -20,6 +22,11 @@ class ObjectParserNode implements StructureParserNodeInterface
     private $properties = [];
 
     /**
+     * @var ObjectParserNodeFactoryInterface
+     */
+    private $factory = null;
+
+    /**
      * @param string $class
      * @param array  $properties
      */
@@ -29,6 +36,8 @@ class ObjectParserNode implements StructureParserNodeInterface
         foreach ($properties as $property => $node) {
             $this->addProperty($property, $property, $node);
         }
+
+        $this->factory = new ObjectParserNodeConstructingFactory($class);
     }
 
     public function addProperty($inputName, $outputName, StructureParserNodeInterface $parserNode)
@@ -57,6 +66,10 @@ class ObjectParserNode implements StructureParserNodeInterface
      */
     public function parse($input)
     {
+        if (!is_array($input)) {
+            throw new Exception('Array expected');
+        }
+
         $properties = array_combine(
             array_map(function (array $desc) {
                 return $desc['name'];
@@ -68,20 +81,17 @@ class ObjectParserNode implements StructureParserNodeInterface
 
         $input = array_reduce(
             array_keys($this->properties),
-            function (array $result, string $inputProperty) use ($input) {
+            function (array $result, $inputProperty) use ($input) {
+                if (!array_key_exists($inputProperty, $input)) {
+                    throw new Exception('Missing input field');
+                }
                 $result[$this->properties[$inputProperty]['name']] = $input[$inputProperty];
                 return $result;
             },
             []
         );
 
-        if (is_string($this->class)) {
-            return new $this->class($properties, $input);
-        } elseif (is_callable($this->class)) {
-            return call_user_func($this->class, $properties, $input);
-        } else {
-            throw new Exception('Invalid class/factory');
-        }
+        return $this->factory->makeNewInstance($properties, $input);
     }
 
     /**
