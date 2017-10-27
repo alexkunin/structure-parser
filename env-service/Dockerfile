@@ -9,12 +9,17 @@ RUN apt-get update \
         php-xdebug \
         php-dom \
         php-mbstring \
+        php-curl \
+        git \
         zip \
     && php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');" \
     && php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && rm /tmp/composer-setup.php
 
-RUN adduser --disabled-password --gecos "" dev
-USER dev
+RUN mkdir /app
 
-RUN composer require --global phpunit/phpunit:^6.2
+RUN adduser --disabled-password --gecos "" dev
+RUN chown dev -R /app
+
+WORKDIR /app
+USER dev
